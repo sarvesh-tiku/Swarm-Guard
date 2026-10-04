@@ -1,0 +1,20 @@
+[server]
+# Streamlit's watcher walks sys.modules; touching transformers' lazy modules triggers
+# imports of dozens of model packages and stalls the first page load. Not needed here.
+fileWatcherType = "none"
+headless = true
+
+[browser]
+gatherUsageStats = false
+
+# Palette from rubyhack.ai: cream page, ink text, slate for machinery.
+[theme]
+base = "light"
+primaryColor = "#31566f"
+backgroundColor = "#fffff8"
+secondaryBackgroundColor = "#f6f6ee"
+textColor = "#111111"
+font = "serif"
+
+[client]
+toolbarMode = "viewer"

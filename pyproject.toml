@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "swarmguard"
+version = "0.2.0"
+description = "Evidence-backed containment assistant for autonomous AI-agent swarms"
+requires-python = ">=3.10"
+dependencies = [
+  "pandas>=2.2", "numpy>=1.26", "networkx>=3.3", "scikit-learn>=1.5",
+  "datasets>=3.0", "huggingface_hub>=0.25", "pyarrow>=15", "tqdm>=4.66",
+  "python-dotenv>=1.0", "streamlit>=1.39", "plotly>=5.24",
+]
+
+[project.optional-dependencies]
+embeddings = ["sentence-transformers>=3.0"]
+dev = ["pytest>=8"]
+
+[tool.setuptools.packages.find]
+include = ["swarmguard*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

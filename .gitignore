@@ -1,0 +1,15 @@
+.env
+.env.*
+!.env.example
+.venv
+__pycache__/
+*.pyc
+.pytest_cache/
+.cache/
+outputs/
+*.egg-info/
+datasets/
+
+# raw rows from the gated AI Village dataset (research terms): keep local
+docs/raw/
+.DS_Store
