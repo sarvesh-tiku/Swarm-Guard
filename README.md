@@ -2,7 +2,7 @@
 
 **Minimal-intervention containment for multi-agent AI systems.**
 
-SwarmGuard reconstructs candidate propagation pathways from the logs a multi-agent system leaves behind, then ranks interventions by a graph counterfactual: how much inferred propagation a control removes, against how much unrelated activity it disrupts.
+SwarmGuard analyzes the execution traces of a multi-agent system to reconstruct plausible pathways through which an error, compromised instruction, or unsafe behavior may have propagated between agents. It represents these interactions as a graph, where nodes capture agents or actions and edges capture inferred influence or information flow. SwarmGuard then evaluates possible interventions, such as blocking a communication edge, isolating an agent, or restricting a tool, using a graph-based counterfactual: if this control had been in place, how much of the inferred harmful propagation would have been prevented? It ranks interventions by balancing that reduction against collateral disruption to unrelated, benign activity, allowing operators to identify controls that contain failures without unnecessarily disabling the broader agent system.
 
 Write-up: [swarm-guard.com](http://swarm-guard.com) · Data: [AI Village](https://huggingface.co/datasets/aidigestorg/ai-village) and the [collusion.wiki](https://collusion.wiki) export · Built at the AI Swarm Dynamics Hackathon (AI Village × Grove Research)
 
