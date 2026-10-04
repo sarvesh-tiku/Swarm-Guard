@@ -73,5 +73,34 @@ def render() -> None:
                 st.markdown(part, unsafe_allow_html=True)
         elif data is not None and part in FIGS:
             fig, cap = FIGS[part](data)
-            st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+            st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False}, key=f"blog_{part}")
             st.markdown(f'<p class="sg-figcap">{S.esc(cap)}</p>', unsafe_allow_html=True)
+
+
+STATIC = Path(__file__).resolve().parent / "static" / "blog.html"
+
+
+def render_page() -> None:
+    """Embed the standalone write-up (scripts/build_blog.py) and link to its full-width version."""
+    import streamlit.components.v1 as components
+
+    if not STATIC.exists():
+        st.info("Build the write-up first: `python scripts/build_blog.py`. Showing the plain version instead.")
+        render()
+        return
+    # Reading mode: while this tab is visible, hide the sidebar and app header and let the write-up fill the
+    # window; leaving the tab restores them. (The component iframe is same-origin, so it can reach the page.)
+    components.html("""<script>
+const me = window.frameElement, doc = window.parent.document, win = window.parent;
+function tick() {
+  const on = !!(me && me.offsetParent !== null);
+  doc.body.classList.toggle('sg-blog-mode', on);
+  const blog = [...doc.querySelectorAll('iframe')].find(f => f !== me && (f.srcdoc || '').includes('Where would you step in?'));
+  if (blog && on) {
+    const h = Math.max(500, win.innerHeight - blog.getBoundingClientRect().top - 4) + 'px';
+    if (blog.style.height !== h) { blog.style.height = h; if (blog.parentElement) blog.parentElement.style.height = h; }
+  }
+}
+setInterval(tick, 200); tick();
+</script>""", height=0)
+    components.html(STATIC.read_text(), height=900, scrolling=True)

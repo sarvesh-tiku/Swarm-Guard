@@ -3,6 +3,8 @@
 # imports of dozens of model packages and stalls the first page load. Not needed here.
 fileWatcherType = "none"
 headless = true
+# serves swarmguard/app/static/ at /app/static/ (the standalone write-up)
+enableStaticServing = true
 
 [browser]
 gatherUsageStats = false

@@ -44,7 +44,7 @@ streamlit run swarmguard/app/app.py
 - **Interventions:** the top 3 candidates as cards, an alternatives table, a paths-removed vs. collateral trade-off
   plot, a before/after counterfactual graph, the list of paths that disappear, and a Markdown report download.
 
-- **How it works / Blog:** a plain-English glossary, and the full write-up ([`docs/blog.md`](docs/blog.md)) with
+- **How it works / Blog:** a plain-English glossary, and the full write-up ([`docs/blog/index.html`](docs/blog/index.html), built by `scripts/build_blog.py`) with
   live figures built from the results.
 
 The UI follows the visual language of [rubyhack.ai](https://rubyhack.ai/): ET Book on cream, one reading column,

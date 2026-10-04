@@ -24,6 +24,8 @@ from swarmguard.analysis.pipeline import AnalysisResult, PipelineConfig, run_pip
 from swarmguard.analysis.reports import CAVEATS, build_report, render_markdown
 from swarmguard.app import blog
 from swarmguard.app import style as S
+from swarmguard.app import start as start_tab
+from swarmguard.app import views
 from swarmguard.data.hf_access import HFAccessError
 from swarmguard.graph.propagation import PropagationConfig, edges_frame
 from swarmguard.interventions.counterfactual import DISCLAIMER
@@ -37,9 +39,6 @@ except (ValueError, AttributeError):
 st.markdown(S.CSS, unsafe_allow_html=True)
 
 WIKI_DIR = Path(__file__).resolve().parents[2] / "datasets" / "german_wiki"
-CONF_WIDTH = {"strong": 3.2, "moderate": 2.0, "weak": 1.0}
-GROUP = {"message": "talk", "memory_write": "memory", "memory_read": "memory", "goal_set": "memory"}
-GROUP_SYMBOL = {"talk": "circle", "action": "square", "memory": "diamond"}
 
 PRESETS = {
     "AI Village: the Village Hub day": dict(source="ai", day=date(2026, 7, 6), hours=(15, 24)),
@@ -130,6 +129,14 @@ except Exception as e:  # adapter errors as one readable line
     st.stop()
 
 ev_idx = R.events.set_index("event_id", drop=False)
+
+
+@st.cache_resource(show_spinner=False)
+def _common(source: str, params_json: str) -> set[str]:
+    return views.common_words(analyze(source, params_json).events)
+
+
+S.COMMON = _common(src, json.dumps(params, sort_keys=True, default=str))
 ids = [e.episode_id for e in R.episodes]
 if st.session_state.get("episode") not in ids:
     st.session_state.episode = ids[0] if ids else None
@@ -147,60 +154,6 @@ def quote(eid: str, n: int = 420) -> str:
                         text[:n] + ("…" if len(text) > n else ""), f"{md.get('raw_table')}:{str(md.get('raw_id'))[:28]}")
 
 
-def episode_graph(ep, edges, removed: set[tuple[str, str]] | None = None, max_resources: int = 6) -> go.Figure:
-    G = nx.DiGraph()
-    for e in edges:
-        G.add_edge(e.src, e.dst)
-    touches = Counter()
-    sub = R.events[R.events.event_id.isin(set(ep.event_ids))]
-    for r in sub.itertuples(index=False):
-        res = list((r.metadata or {}).get("resources") or [])
-        if isinstance(r.target_id, str) and r.target_type == "resource":
-            res.append(r.target_id)
-        for x in res:
-            touches[(r.actor_id, x)] += 1
-    top_res = [x for x, _ in Counter(k[1] for k in touches.elements()).most_common(max_resources)]
-    for (a, x), _ in touches.items():
-        if x in top_res and a in ep.agents:
-            G.add_edge(a, "R::" + x, kind="touch")
-    for a in ep.agents:
-        G.add_node(a)
-    pos = nx.spring_layout(G, seed=7, k=1.3 / max(1, len(G) ** 0.5))
-    fig = go.Figure()
-    xs, ys = [], []
-    for u, v, d in G.edges(data=True):
-        if d.get("kind"):
-            xs += [pos[u][0], pos[v][0], None]
-            ys += [pos[u][1], pos[v][1], None]
-    fig.add_scatter(x=xs, y=ys, mode="lines", line=dict(color=S.GREEN, width=1, dash="dot"), hoverinfo="skip",
-                    name="observed: agent touched this page/site", opacity=0.7)
-    for e in edges:
-        gone = removed is not None and (e.src, e.dst) in removed
-        fig.add_annotation(x=pos[e.dst][0], y=pos[e.dst][1], ax=pos[e.src][0], ay=pos[e.src][1], xref="x", yref="y",
-                           axref="x", ayref="y", showarrow=True, arrowhead=3, arrowsize=1,
-                           arrowwidth=1.2 if gone else CONF_WIDTH[e.confidence],
-                           arrowcolor=S.RULE if gone else S.AMBER, opacity=0.9 if gone else 0.8, standoff=9, startstandoff=9)
-    fig.add_scatter(x=[None], y=[None], mode="lines", line=dict(color=S.AMBER, width=2.5),
-                    name="inferred: may have spread A → B (thicker = better supported)")
-    if removed:
-        fig.add_scatter(x=[None], y=[None], mode="lines", line=dict(color=S.RULE, width=2),
-                        name="removed by this intervention")
-    agents = [n for n in G if not str(n).startswith("R::")]
-    res = [n for n in G if str(n).startswith("R::")]
-    fig.add_scatter(x=[pos[n][0] for n in agents], y=[pos[n][1] for n in agents], mode="markers+text",
-                    marker=dict(size=13, color=S.SLATE, line=dict(width=2, color=S.CREAM)), text=agents,
-                    textposition="top center", textfont=dict(size=11, color=S.INK), name="agent", hoverinfo="text")
-    if res:
-        lab = [S.resource_name(n[3:])[:34] for n in res]
-        fig.add_scatter(x=[pos[n][0] for n in res], y=[pos[n][1] for n in res], mode="markers+text",
-                        marker=dict(size=12, symbol="square-open", color=S.INK, line=dict(width=1.6)),
-                        text=lab, textposition="bottom center", textfont=dict(size=11, color=S.DULL, family=S.SANS),
-                        name="shared page / site", hovertext=lab, hoverinfo="text")
-    fig.update_xaxes(visible=False)
-    fig.update_yaxes(visible=False)
-    return S.style_fig(fig, 540)
-
-
 def _span(a, b) -> str:
     return f"{a:%b %d %Y}" if a.date() == b.date() else f"{a:%b %d} – {b:%b %d %Y}"
 
@@ -208,16 +161,20 @@ def _span(a, b) -> str:
 # ------------------------------------------------------------------ header
 ctx = R.context
 n_agents = R.events.loc[R.events.actor_type == "agent", "actor_id"].nunique()
-st.markdown("# SwarmGuard")
-st.markdown('<p class="sg-dek">Reconstructs how behaviour spreads between AI agents and the pages, sites and memory '
-            'they share, then points to the smallest, most reversible place an operator could step in.</p>',
-            unsafe_allow_html=True)
-st.markdown(f'<div class="sg-byline">{S.esc(ctx.get("dataset", ""))}<span class="sep">·</span>'
-            f'{_span(R.events.timestamp.min(), R.events.timestamp.max())}<span class="sep">·</span>'
-            f'{len(R.events):,} logged actions<span class="sep">·</span>{n_agents:,} agents</div>', unsafe_allow_html=True)
-st.markdown(S.key_html(), unsafe_allow_html=True)
+st.markdown(
+    '<div class="sg-apphead"><h1 style="margin:0 0 .4rem">SwarmGuard</h1>'
+    '<p class="sg-dek">Reconstructs how behaviour spreads between AI agents and the pages, sites and memory '
+    'they share, then points to the smallest, most reversible place an operator could step in.</p>'
+    f'<div class="sg-byline">{S.esc(ctx.get("dataset", ""))}<span class="sep">·</span>'
+    f'{_span(R.events.timestamp.min(), R.events.timestamp.max())}<span class="sep">·</span>'
+    f'{len(R.events):,} logged actions<span class="sep">·</span>{n_agents:,} agents</div>'
+    + S.key_html() + '</div>', unsafe_allow_html=True)
 
-t_sum, t_eps, t_inv, t_int, t_how, t_blog = st.tabs(["Summary", "Episodes", "Investigate", "Intervene", "How it works", "Blog"])
+t_start, t_sum, t_eps, t_inv, t_int, t_how, t_blog = st.tabs(
+    ["Start here", "Summary", "Episodes", "Investigate", "Intervene", "How it works", "Blog"])
+
+with t_start:
+    start_tab.render()
 
 # ------------------------------------------------------------------ Summary
 with t_sum:
@@ -311,36 +268,45 @@ with t_inv:
         st.markdown(f'<div class="sg-byline">{ep.episode_id}<span class="sep">·</span>{ep.start:%b %d %Y, %H:%M}–{ep.end:%H:%M} UTC'
                     f'<span class="sep">·</span>keywords: {S.esc(ep.label)}</div>', unsafe_allow_html=True)
 
-        st.markdown("### 1. What the logs show")
-        st.caption("The first and most connected actions in this episode, verbatim (green = straight from the logs).")
-        shown = set()
         prop = next(d for d in ep.detections if d.name == "information_propagation")
-        seq = [e for h in prop.details.get("hops", []) for e in h["evidence"]] or list(sub.event_id[:6])
-        for eid in seq:
-            if eid not in shown and len(shown) < 6:
-                shown.add(eid)
-                st.markdown(quote(eid), unsafe_allow_html=True)
-        with st.expander(f"Show all {len(sub)} actions in this episode"):
-            for eid in sub.event_id[:120]:
-                st.markdown(quote(eid, 260), unsafe_allow_html=True)
+        pidx = views.pairs_index(R.pairs, set(ep.event_ids))
+        edge_by = {(e.src, e.dst): e for e in ep.agent_edges}
 
-        st.markdown("### 2. Who and what was involved")
-        st.plotly_chart(episode_graph(ep, ep.agent_edges), use_container_width=True, config={"displayModeBar": False})
-        st.caption("Slate dots are agents; open squares are the pages or sites they used. Green dotted lines are "
-                   "observed (the agent really touched that page). Amber arrows are SwarmGuard's inference that one "
-                   "agent's action may have led to another's.")
-        sub2 = sub.assign(group=sub.action_type.map(GROUP).fillna("action"))
-        fig = go.Figure()
-        for g, sym in GROUP_SYMBOL.items():
-            s = sub2[sub2.group == g]
-            if len(s):
-                fig.add_scatter(x=s.timestamp, y=s.actor_id, mode="markers", name={"talk": "message", "action": "action on a page / tool", "memory": "memory or goal"}[g],
-                                marker=dict(size=9, color=S.SLATE, symbol=sym, line=dict(width=1.5, color=S.CREAM)),
-                                hovertext=[f"{r.actor_id}: {S.esc(str(r.content)[:140])}" for r in s.itertuples()], hoverinfo="text")
-        fig.update_layout(title="When each agent acted")
-        st.plotly_chart(S.style_fig(fig, max(260, 26 * len(ep.agents))), use_container_width=True, config={"displayModeBar": False})
+        st.markdown(views.takeaway_html(ep, R.events, R.interventions.get(ep.episode_id)), unsafe_allow_html=True)
 
-        st.markdown("### 3. What SwarmGuard infers")
+        st.markdown("### 1. How it may have spread")
+        fig, cap = views.spread_map(ep, R.events)
+        st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+        st.markdown(f'<p class="sg-figcap">{S.esc(cap)}</p>', unsafe_allow_html=True)
+
+        st.markdown("### 2. The evidence, step by step")
+        st.caption("Each step pairs an earlier action with a later one. Green highlights mark what the two log lines "
+                   "share; the amber line says why SwarmGuard links them. Quotes are trimmed to the passage that matters.")
+        hops = prop.details.get("hops", []) or []
+        for k_, h in enumerate(hops[:6], 1):
+            st.markdown(views.evidence_pair(h["evidence"][0], h["evidence"][1], ev_idx, pidx, edge_by.get((h["from"], h["to"])),
+                                            title=f"Step {k_}: {h['from']} → {h['to']}"), unsafe_allow_html=True)
+        if not hops:
+            for e in ep.agent_edges[:3]:
+                a_, b_ = e.evidence_pairs[0]
+                st.markdown(views.evidence_pair(a_, b_, ev_idx, pidx, e, title=f"{e.src} → {e.dst}"), unsafe_allow_html=True)
+        if len(hops) > 6:
+            with st.expander(f"Show the other {len(hops) - 6} steps"):
+                for k_, h in enumerate(hops[6:], 7):
+                    st.markdown(views.evidence_pair(h["evidence"][0], h["evidence"][1], ev_idx, pidx,
+                                                    edge_by.get((h["from"], h["to"])), title=f"Step {k_}: {h['from']} → {h['to']}"),
+                                unsafe_allow_html=True)
+        with st.expander(f"Read all {len(sub)} actions in this episode, in order"):
+            for eid in sub.event_id[:150]:
+                st.markdown(quote(eid, 300), unsafe_allow_html=True)
+
+        wu = views.who_used_what(ep, R.events)
+        if wu:
+            st.markdown("### 3. Who used which shared page")
+            st.plotly_chart(wu[0], use_container_width=True, config={"displayModeBar": False})
+            st.markdown(f'<p class="sg-figcap">{S.esc(wu[1])}</p>', unsafe_allow_html=True)
+
+        st.markdown("### 4. What SwarmGuard infers")
         if prop.details.get("hops"):
             src_ = prop.details["candidate_source"]
             amb = prop.details.get("competing_sources") or []
@@ -363,10 +329,9 @@ with t_inv:
                 pick = st.selectbox("Show the evidence pairs behind one link", range(len(ep.agent_edges)),
                                     format_func=lambda k: f"{ep.agent_edges[k].src} → {ep.agent_edges[k].dst}")
                 for a_, b_ in ep.agent_edges[pick].evidence_pairs[:4]:
-                    st.markdown(quote(a_, 240) + quote(b_, 240), unsafe_allow_html=True)
-                    st.markdown("<hr style='border-top:1px solid #e8e8df'>", unsafe_allow_html=True)
+                    st.markdown(views.evidence_pair(a_, b_, ev_idx, pidx, ep.agent_edges[pick]), unsafe_allow_html=True)
 
-        st.markdown("### 4. The checks")
+        st.markdown("### 5. The checks")
         for d in ep.detections:
             verdict = "Yes" if d.triggered else "No"
             st.markdown(f"**{S.DETECTOR_QUESTION[d.name]}** {verdict}"
@@ -377,7 +342,7 @@ with t_inv:
 
         hr = ep.stats.get("historical_response")
         if hr:
-            st.markdown("### 5. What the operators actually did")
+            st.markdown("### 6. What the operators actually did")
             body = (f"{hr['pages_deleted']} of {hr['episode_pages']} pages in this episode were later deleted by "
                     f"{S.esc(', '.join(hr['deleted_by']))}, the first one <b>{hr['hours_from_episode_end_to_first_deletion']} hours</b> "
                     f"after the episode ended. {hr['writes_after_episode_before_deletion']} more writes landed in between; "
@@ -422,11 +387,14 @@ with t_int:
                 c[2].metric("Undo", "easy" if ri.reversibility >= 0.8 else "partly" if ri.reversibility >= 0.6 else "costly")
                 c[3].metric("Evidence", {"high": "solid", "moderate": "fair", "low": "thin"}[ri.confidence])
 
-        fig = go.Figure(go.Scatter(x=[ri.collateral * 100 for ri in ranked], y=[ri.paths_removed * 100 for ri in ranked],
-                                   mode="markers+text", text=[str(i + 1) for i in range(len(ranked))],
-                                   textposition="top center", textfont=dict(family=S.SANS, size=11, color=S.SLATE),
-                                   marker=dict(size=11, color=S.SLATE, line=dict(width=2, color=S.CREAM)),
-                                   hovertext=[S.intervention_label(ri) for ri in ranked], hoverinfo="text"))
+        # label only the top five (the rest are hover-only) so numbers never pile up
+        fig = go.Figure(go.Scatter(
+            x=[ri.collateral * 100 for ri in ranked], y=[ri.paths_removed * 100 for ri in ranked], mode="markers+text",
+            text=[str(i + 1) if i < 5 else "" for i in range(len(ranked))], textposition="middle right",
+            textfont=dict(family=S.SANS, size=12, color=S.SLATE),
+            marker=dict(size=[16 if i == 0 else 10 if i < 5 else 7 for i in range(len(ranked))],
+                        color=[S.SLATE if i < 5 else S.RULE for i in range(len(ranked))], line=dict(width=2, color=S.CREAM)),
+            hovertext=[f"{i + 1}. {S.intervention_label(ri)}" for i, ri in enumerate(ranked)], hoverinfo="text"))
         fig.update_layout(title="Every option: spread removed vs. side-effects (top-left is best)",
                           xaxis_title="unrelated activity touched (%)", yaxis_title="inferred spread removed (%)")
         st.plotly_chart(S.style_fig(fig, 340, legend=False), use_container_width=True, config={"displayModeBar": False})
@@ -444,9 +412,9 @@ with t_int:
         cf = ri.counterfactual
         st.markdown(f'<p>With <i>{S.esc(S.intervention_label(ri).lower())}</i> in place, '
                     f'<b>{ri.n_paths_removed} of {ri.n_paths_before}</b> inferred paths between agents disappear. '
-                    f'Removed links are drawn in grey.</p>', unsafe_allow_html=True)
-        st.plotly_chart(episode_graph(ep, cf.edges_before, {(e.src, e.dst) for e in cf.removed_edges}),
-                        use_container_width=True, key=f"before_{k}", config={"displayModeBar": False})
+                    f'On the spread map below, the links this option cuts turn grey and are marked ✕.</p>', unsafe_allow_html=True)
+        fig, _ = views.spread_map(ep, R.events, removed={(e.src, e.dst) for e in cf.removed_edges})
+        st.plotly_chart(fig, use_container_width=True, key=f"before_{k}", config={"displayModeBar": False})
         if cf.removed_path_examples:
             st.markdown("**Examples of spread that would no longer connect:** " + "; ".join(
                 f"{S.esc(x['source'])} → {S.esc(x['target'])}" for x in cf.removed_path_examples[:5]))
@@ -488,4 +456,4 @@ with t_how:
 
 # ------------------------------------------------------------------ Blog
 with t_blog:
-    blog.render()
+    blog.render_page()
