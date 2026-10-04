@@ -12,6 +12,8 @@ Write-up: [swarm-guard.com](http://swarm-guard.com) · Data: [AI Village](https:
 </p>
 -->
 
+<img width="976" height="645" alt="Screenshot 2026-10-04 at 19 02 35" src="https://github.com/user-attachments/assets/b8eb841d-62eb-4906-a3de-364a3d310903" />
+
 ## Core idea
 
 ```text
@@ -19,8 +21,6 @@ events → candidate edges → time-respecting paths → episodes → counterfac
 ```
 
 Single-agent monitoring scores individual actions. Swarm-level failures are distributed: no single post on a shared board is anomalous, but twenty-four writers converging on one page in under an hour is. SwarmGuard models the swarm as a heterogeneous temporal graph (agents, messages, sessions, memory, goals, tools, external resources) and looks for the bottleneck: the narrowest edge or node whose removal disconnects the most inferred spread.
-
-<img width="976" height="645" alt="Screenshot 2026-10-04 at 19 02 35" src="https://github.com/user-attachments/assets/b8eb841d-62eb-4906-a3de-364a3d310903" />
 
 ## Method
 
