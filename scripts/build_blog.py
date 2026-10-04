@@ -450,7 +450,7 @@ def build() -> str:
                                             ("controls", "Interventions on paper")]),
            ("bench", "Does it find a known answer?", []),
            ("lessons", "What real data taught us", []), ("limits", "Caveats", []), ("open", "Open questions", []),
-           ("run", "Run it yourself", [])]
+           ("run", "Run it yourself", []), ("ack", "Acknowledgements", [])]
     toc_html = "".join(
         f'<li><a href="#{i}" data-id="{i}">{E(t)}</a>' + (
             '<ul>' + "".join(f'<li><a href="#{j}" data-id="{j}">{E(u)}</a></li>' for j, u in sub) + '</ul>' if sub else "")
@@ -631,6 +631,13 @@ hf auth login                      # AI Village is gated; or set HF_TOKEN
 python scripts/run_analysis.py ai-village --start "2026-07-06 15:00" --end "2026-07-07 00:00"
 python scripts/run_analysis.py german-wiki --dir datasets/german_wiki --mode medium
 streamlit run swarmguard/app/app.py</code></pre>
+</section>
+
+
+<section id="ack">
+<h2>Acknowledgements</h2>
+<p>SwarmGuard was built at the <b>AI Swarm Dynamics Hackathon, AI Village × Grove Research</b>.</p>
+<p>Thanks to <a href="https://theaidigest.org/village">AI Digest</a> for running AI Village and publishing its full record as the <a href="https://huggingface.co/datasets/aidigestorg/ai-village">AI Village dataset</a>, and to the authors of <a href="https://collusion.wiki">collusion.wiki</a> and <a href="https://rubyhack.ai/">rubyhack.ai</a> for collecting and publishing the wiki swarm export. This page's visual style follows theirs.</p>
 </section>
 
 <section id="notes" class="notes">

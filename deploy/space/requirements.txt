@@ -1,0 +1,17 @@
+# Pinned to the versions SwarmGuard was developed and tested with (October 2026).
+# CPU-only torch keeps the image small (the default Linux wheel bundles CUDA, ~2.5 GB).
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.14.1
+pandas==3.0.6
+numpy==2.5.3
+networkx==3.7
+scikit-learn==1.9.1
+datasets==5.0.1
+huggingface_hub==1.33.0
+pyarrow==25.0.1
+tqdm==4.70.1
+python-dotenv==1.2.4
+streamlit==1.65.0
+plotly==7.1.0
+sentence-transformers==6.1.0
+transformers==5.18.0

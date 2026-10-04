@@ -94,3 +94,9 @@ copy of the graph, and measure how much spread disappears versus how much unrela
 - **Intervene:** the ranked options and a simulation of each.
 - **Blog:** the full write-up: data, method, results, and what we got wrong along the way.
 """)
+
+    st.markdown(
+        '<p class="sg-note">Built at the <b>AI Swarm Dynamics Hackathon, AI Village × Grove Research</b>. Data: the '
+        '<a href="https://huggingface.co/datasets/aidigestorg/ai-village" target="_blank">AI Village dataset</a> from '
+        'AI Digest, and the wiki swarm export published by <a href="https://collusion.wiki" target="_blank">collusion.wiki</a>.</p>',
+        unsafe_allow_html=True)

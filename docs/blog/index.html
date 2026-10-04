@@ -112,7 +112,7 @@ ol.lessons li, section ul li { margin-bottom: .6rem; }
 <a href="#findings" data-sec="findings">Findings</a><a href="#how" data-sec="how">Method</a><a href="#bench" data-sec="bench">Benchmark</a>
 <a href="#limits" data-sec="limits">Caveats</a><a href="#run" data-sec="run">Run it</a></div></nav>
 <div class="frame">
-<aside class="rail"><div class="h">Contents</div><ul><li><a href="#intro" data-id="intro">Intro</a></li><li><a href="#facts" data-id="facts">Key facts</a></li><li><a href="#users" data-id="users">Who is this for?</a></li><li><a href="#data" data-id="data">The data</a><ul><li><a href="#village-data" data-id="village-data">AI Village</a></li><li><a href="#wiki-data" data-id="wiki-data">The wiki export</a></li></ul></li><li><a href="#timeline" data-id="timeline">Timeline of the wiki swarm</a></li><li><a href="#findings" data-id="findings">Findings</a><ul><li><a href="#relay" data-id="relay">A relay board on a public wiki</a></li><li><a href="#audit" data-id="audit">What the operator actually did</a></li><li><a href="#hub" data-id="hub">The Village Hub</a></li></ul></li><li><a href="#how" data-id="how">How SwarmGuard works</a><ul><li><a href="#links" data-id="links">Candidate links</a></li><li><a href="#paths" data-id="paths">Time-respecting paths</a></li><li><a href="#controls" data-id="controls">Interventions on paper</a></li></ul></li><li><a href="#bench" data-id="bench">Does it find a known answer?</a></li><li><a href="#lessons" data-id="lessons">What real data taught us</a></li><li><a href="#limits" data-id="limits">Caveats</a></li><li><a href="#open" data-id="open">Open questions</a></li><li><a href="#run" data-id="run">Run it yourself</a></li></ul></aside>
+<aside class="rail"><div class="h">Contents</div><ul><li><a href="#intro" data-id="intro">Intro</a></li><li><a href="#facts" data-id="facts">Key facts</a></li><li><a href="#users" data-id="users">Who is this for?</a></li><li><a href="#data" data-id="data">The data</a><ul><li><a href="#village-data" data-id="village-data">AI Village</a></li><li><a href="#wiki-data" data-id="wiki-data">The wiki export</a></li></ul></li><li><a href="#timeline" data-id="timeline">Timeline of the wiki swarm</a></li><li><a href="#findings" data-id="findings">Findings</a><ul><li><a href="#relay" data-id="relay">A relay board on a public wiki</a></li><li><a href="#audit" data-id="audit">What the operator actually did</a></li><li><a href="#hub" data-id="hub">The Village Hub</a></li></ul></li><li><a href="#how" data-id="how">How SwarmGuard works</a><ul><li><a href="#links" data-id="links">Candidate links</a></li><li><a href="#paths" data-id="paths">Time-respecting paths</a></li><li><a href="#controls" data-id="controls">Interventions on paper</a></li></ul></li><li><a href="#bench" data-id="bench">Does it find a known answer?</a></li><li><a href="#lessons" data-id="lessons">What real data taught us</a></li><li><a href="#limits" data-id="limits">Caveats</a></li><li><a href="#open" data-id="open">Open questions</a></li><li><a href="#run" data-id="run">Run it yourself</a></li><li><a href="#ack" data-id="ack">Acknowledgements</a></li></ul></aside>
 <main>
 <section id="intro">
 <h1 class="title">Where would you step in?</h1>
@@ -797,6 +797,13 @@ hf auth login                      # AI Village is gated; or set HF_TOKEN
 python scripts/run_analysis.py ai-village --start "2026-07-06 15:00" --end "2026-07-07 00:00"
 python scripts/run_analysis.py german-wiki --dir datasets/german_wiki --mode medium
 streamlit run swarmguard/app/app.py</code></pre>
+</section>
+
+
+<section id="ack">
+<h2>Acknowledgements</h2>
+<p>SwarmGuard was built at the <b>AI Swarm Dynamics Hackathon, AI Village × Grove Research</b>.</p>
+<p>Thanks to <a href="https://theaidigest.org/village">AI Digest</a> for running AI Village and publishing its full record as the <a href="https://huggingface.co/datasets/aidigestorg/ai-village">AI Village dataset</a>, and to the authors of <a href="https://collusion.wiki">collusion.wiki</a> and <a href="https://rubyhack.ai/">rubyhack.ai</a> for collecting and publishing the wiki swarm export. This page's visual style follows theirs.</p>
 </section>
 
 <section id="notes" class="notes">
