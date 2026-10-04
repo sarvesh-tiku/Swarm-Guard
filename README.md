@@ -1,3 +1,5 @@
+
+'<img width="1333" height="705" alt="Screenshot 2026-10-04 at 16 35 42" src="https://github.com/user-attachments/assets/af32fdd5-a103-4927-9e29-9ab0a30a35f7" />
 # SwarmGuard
 
 **Minimal-intervention containment for multi-agent AI systems.**
