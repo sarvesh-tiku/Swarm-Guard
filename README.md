@@ -18,6 +18,9 @@ Built on the [AI Village dataset](https://huggingface.co/datasets/aidigestorg/ai
 agents → resources → propagation graph → intervention
 ```
 
+<img width="1348" height="713" alt="Screenshot 2026-10-04 at 16 31 08" src="https://github.com/user-attachments/assets/1781fc79-286b-4d7d-90d6-b1f17d2b7220" />
+
+
 Single-agent monitoring asks: *Is this agent doing something unsafe?*
 
 SwarmGuard asks: *Where is the propagation bottleneck?*
