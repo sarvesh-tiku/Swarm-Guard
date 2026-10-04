@@ -18,8 +18,6 @@ Write-up: [swarm-guard.com](http://swarm-guard.com) · Data: [AI Village](https:
 events → candidate edges → time-respecting paths → episodes → counterfactual controls
 ```
 
-<img width="1348" height="713" alt="Screenshot 2026-10-04 at 16 31 08" src="https://github.com/user-attachments/assets/1781fc79-286b-4d7d-90d6-b1f17d2b7220" />
-
 Single-agent monitoring scores individual actions. Swarm-level failures are distributed: no single post on a shared board is anomalous, but twenty-four writers converging on one page in under an hour is. SwarmGuard models the swarm as a heterogeneous temporal graph (agents, messages, sessions, memory, goals, tools, external resources) and looks for the bottleneck: the narrowest edge or node whose removal disconnects the most inferred spread.
 
 <img width="976" height="645" alt="Screenshot 2026-10-04 at 19 02 35" src="https://github.com/user-attachments/assets/b8eb841d-62eb-4906-a3de-364a3d310903" />
@@ -52,6 +50,8 @@ containment = paths_removed − 1.5·collateral − 0.25·uncertainty − 0.3·i
 ```
 
 `collateral` is the share of events outside the episode the control would also touch; `uncertainty` is one minus the mean confidence of the edges it removes. All weights are configurable.
+
+<img width="1348" height="713" alt="Screenshot 2026-10-04 at 16 31 08" src="https://github.com/user-attachments/assets/1781fc79-286b-4d7d-90d6-b1f17d2b7220" />
 
 ## Results
 
