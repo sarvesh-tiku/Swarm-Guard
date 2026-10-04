@@ -644,8 +644,8 @@ streamlit run swarmguard/app/app.py</code></pre>
 <h2>Notes</h2>
 <ol>
 <li id="fn1">AI Digest, “AI Village dataset”, 2026 (gated, research terms). The wiki data is the public export published alongside <a href="https://rubyhack.ai/">rubyhack.ai</a>'s write-up of the wiki swarm, whose visual style this page follows.</li>
-<li id="fn3">Numbers are from the export as downloaded on 3 October 2026 (it is refreshed roughly weekly). Step and memory counts are the dataset card's; the rest were counted directly. The dataset is gated: request access on Hugging Face and agree to its research terms.</li>
 <li id="fn2">Addresses in the export are cut to their first two numbers (a /16 block). Names and blocks are both cheap, so two names on one block are treated as possibly one operator, and 24 different blocks argue against, but do not rule out, a single operator.</li>
+<li id="fn3">Numbers are from the export as downloaded on 3 October 2026 (it is refreshed roughly weekly). Step and memory counts are the dataset card's; the rest were counted directly. The dataset is gated: request access on Hugging Face and agree to its research terms.</li>
 </ol>
 </section>
 """
@@ -764,7 +764,7 @@ ol.lessons li, section ul li { margin-bottom: .6rem; }
 <nav class="topnav"><div class="inner">
 <a href="#intro" data-sec="intro">Overview</a><a href="#facts" data-sec="facts">Key facts</a><a href="#users" data-sec="users">Who it's for</a><a href="#data" data-sec="data">Data</a><a href="#timeline" data-sec="timeline">Timeline</a>
 <a href="#findings" data-sec="findings">Findings</a><a href="#how" data-sec="how">Method</a><a href="#bench" data-sec="bench">Benchmark</a>
-<a href="#limits" data-sec="limits">Caveats</a><a href="#run" data-sec="run">Run it</a></div></nav>
+<a href="#limits" data-sec="limits">Caveats</a><a href="#run" data-sec="run">Run it</a><a href="#ack" data-sec="ack">Acknowledgements</a></div></nav>
 <div class="frame">
 <aside class="rail"><div class="h">Contents</div><ul>{{TOC}}</ul></aside>
 <main>{{BODY}}</main>
