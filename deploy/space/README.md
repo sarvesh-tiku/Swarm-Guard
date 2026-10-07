@@ -19,4 +19,4 @@ the smallest, most reversible place an operator could step in.
 - **Data:** AI Village (gated; read at runtime with this Space's `HF_TOKEN` secret, never stored in the Space),
   the German wiki export (public, included), and a synthetic test.
 
-This Space is private because AI Village is a gated dataset: only people with access to this Space can see its content.
+The public Space opens on the German wiki export and the synthetic test. AI Village is a gated dataset, so its preset only works where an `HF_TOKEN` with access is set (or when you run the app locally after `hf auth login`).

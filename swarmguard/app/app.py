@@ -10,7 +10,9 @@ from __future__ import annotations
 
 import faulthandler
 import json
+import os
 import signal
+import sys
 from collections import Counter
 from datetime import date, datetime, time, timedelta, timezone
 from pathlib import Path
@@ -19,6 +21,9 @@ import networkx as nx
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
+
+# make the package importable when the host runs this file directly (e.g. Streamlit Community Cloud)
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from swarmguard.analysis.pipeline import AnalysisResult, PipelineConfig, run_pipeline
 from swarmguard.analysis.reports import CAVEATS, build_report, render_markdown
@@ -77,7 +82,9 @@ def analyze(source: str, params_json: str) -> AnalysisResult:
 # ------------------------------------------------------------------ sidebar: what to look at
 st.sidebar.markdown("## SwarmGuard")
 st.sidebar.markdown('<p class="sg-dek" style="font-size:1rem">Which logs should we read?</p>', unsafe_allow_html=True)
-preset = st.sidebar.radio("Data", list(PRESETS), label_visibility="collapsed")
+# AI Village is gated: without a token or a local login (e.g. a public deployment), open on the wiki instead
+_has_hf = bool(os.environ.get("HF_TOKEN")) or Path(os.path.expanduser("~/.cache/huggingface/token")).exists()
+preset = st.sidebar.radio("Data", list(PRESETS), index=0 if _has_hf else 1, label_visibility="collapsed")
 pr = PRESETS[preset]
 params: dict = {"hf_mode": "download"}
 src = pr["source"]

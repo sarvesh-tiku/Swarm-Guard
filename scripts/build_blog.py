@@ -672,6 +672,7 @@ body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--s
   display: flex; gap: 1.35rem; overflow-x: auto; }
 .topnav a { display: inline-block; padding: 15px 2px 12px; font-family: var(--sans); font-size: 14px; color: var(--ink); text-decoration: none;
   border-bottom: 2px solid transparent; white-space: nowrap; }
+.topnav a.applink { font-weight: 600; border-bottom-color: var(--ink); }
 .topnav a.on { font-family: var(--serif); font-size: 17px; border-bottom-color: var(--ink); }
 .frame { display: grid; grid-template-columns: var(--rail) minmax(0, var(--col)); gap: 60px; max-width: calc(var(--rail) + 60px + var(--col) + 48px);
   margin: 0 auto; padding: 0 24px; }
@@ -764,7 +765,7 @@ ol.lessons li, section ul li { margin-bottom: .6rem; }
 <nav class="topnav"><div class="inner">
 <a href="#intro" data-sec="intro">Overview</a><a href="#facts" data-sec="facts">Key facts</a><a href="#users" data-sec="users">Who it's for</a><a href="#data" data-sec="data">Data</a><a href="#timeline" data-sec="timeline">Timeline</a>
 <a href="#findings" data-sec="findings">Findings</a><a href="#how" data-sec="how">Method</a><a href="#bench" data-sec="bench">Benchmark</a>
-<a href="#limits" data-sec="limits">Caveats</a><a href="#run" data-sec="run">Run it</a><a href="#ack" data-sec="ack">Acknowledgements</a></div></nav>
+<a href="#limits" data-sec="limits">Caveats</a><a href="#run" data-sec="run">Run it</a><a href="#ack" data-sec="ack">Acknowledgements</a><a href="https://swarm-guard.com/app/" class="applink">Open the app ↗</a></div></nav>
 <div class="frame">
 <aside class="rail"><div class="h">Contents</div><ul>{{TOC}}</ul></aside>
 <main>{{BODY}}</main>
